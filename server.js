@@ -3,7 +3,7 @@ const Router = require("./routes/agents.router");
 const app = express();
 
 app.use(express.json());
-app.use("/agents", Router);
+app.use("/", Router);
 
 
 app.listen(5000, () => {
