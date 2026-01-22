@@ -10,3 +10,20 @@ exports.getAgents = async (req, res) => {
         res.status(404).send({ error: "Um erro aconteceu" })
     }
 }
+
+exports.getIdAgents = async (req, res) => {
+    console.log("ok");
+}
+
+exports.createIdAgents = async (req, res) => {
+    console.log("ok");
+}
+
+exports.updateIdAgents = async (req, res) => {
+    console.log("ok");
+}
+
+exports.deleteIdAgents = async (req, res) => {
+    console.log("ok");
+}
+
