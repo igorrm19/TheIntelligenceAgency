@@ -1,3 +1,8 @@
+/**
+ * Tarefa para depois semparar models de controllrs
+ */
+
+
 const Models = require("../models/agents.models")
 const fs = require('fs');
 
@@ -58,7 +63,11 @@ exports.createIdAgents = async (req, res) => {
 exports.updateIdAgents = async (req, res) => {
     try {
         const { id } = req.params;
-        const data = req.body;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).json({ message: "Status é obrigatório" });
+        }
 
         const agents = await fs.promises.readFile("agents.json", "utf-8");
         const agentsObject = JSON.parse(agents);
@@ -71,20 +80,14 @@ exports.updateIdAgents = async (req, res) => {
             return res.status(404).json({ message: "Agente não encontrado" });
         }
 
-        const updatedAgent = {
-            ...agentsObject[index],
-            ...data,
-            id
-        };
-
-        agentsObject[index] = updatedAgent;
+        agentsObject[index].status = status;
 
         fs.writeFileSync(
             "agents.json",
             JSON.stringify(agentsObject, null, 2)
         );
 
-        res.status(200).json(updatedAgent);
+        res.status(200).json(agentsObject[index]);
 
 
     } catch (err) {
