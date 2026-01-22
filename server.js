@@ -1,10 +1,14 @@
 const express = require("express");
-const port = 3000;
-
+const Router = require("./routes/agents.router");
 const app = express();
+
 app.use(express.json());
+app.use("/agents", Router);
 
 
-app.listen(port || 3001, () => {
-    console.log("Servidor rodando na porta", port);
+app.listen(5000, () => {
+    console.log("Servidor rodando na porta 5000");
 });
+
+
+
