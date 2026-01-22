@@ -7,11 +7,17 @@ back-end software for storing data in JSON files.
 
 
 ## technologies
+
 -Javascript
+
 -Node.js
+
 -Express
+
 -NodeMon
+
 -Morgan
+
 -RestAPI
 
 
