@@ -32,6 +32,21 @@ exports.getIdAgents = async (req, res) => {  //funcionando
 
 exports.createIdAgents = async (req, res) => {
     try {
+        const agent = req.body;
+
+        const agents = await fs.promises.readFile("agents.json", "utf-8");
+        const agentsObject = JSON.parse(agents);
+
+        agent.id = Date.now().toString();
+        agentsObject.push(agent);
+
+        fs.writeFileSync(
+            "agents.json",
+            JSON.stringify(agentsObject, null, 2)
+        );
+
+        res.status(201).json(agent);
+
 
 
     } catch (err) {
@@ -42,6 +57,35 @@ exports.createIdAgents = async (req, res) => {
 
 exports.updateIdAgents = async (req, res) => {
     try {
+        const { id } = req.params;
+        const data = req.body;
+
+        const agents = await fs.promises.readFile("agents.json", "utf-8");
+        const agentsObject = JSON.parse(agents);
+
+        const index = agentsObject.findIndex(
+            agent => String(agent.id) === id
+        );
+
+        if (index < 0) {
+            return res.status(404).json({ message: "Agente não encontrado" });
+        }
+
+        const updatedAgent = {
+            ...agentsObject[index],
+            ...data,
+            id
+        };
+
+        agentsObject[index] = updatedAgent;
+
+        fs.writeFileSync(
+            "agents.json",
+            JSON.stringify(agentsObject, null, 2)
+        );
+
+        res.status(200).json(updatedAgent);
+
 
     } catch (err) {
         console.log(err)
@@ -51,6 +95,27 @@ exports.updateIdAgents = async (req, res) => {
 
 exports.deleteIdAgents = async (req, res) => {
     try {
+        const { id } = req.params;
+
+        const agents = await fs.promises.readFile("agents.json", "utf-8");
+        const agentsObject = JSON.parse(agents);
+
+        const index = agentsObject.findIndex(
+            agent => String(agent.id) === id
+        );
+
+        if (index < 0) {
+            return res.status(404).json({ message: "Agente não encontrado" });
+        }
+
+        agentsObject.splice(index, 1);
+
+        fs.writeFileSync(
+            "agents.json",
+            JSON.stringify(agentsObject, null, 2)
+        );
+
+        res.status(204).send();
 
     } catch (err) {
         console.log(err)
