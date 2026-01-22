@@ -15,4 +15,28 @@ back-end software for storing data in JSON files.
 -> Morgan   
 -> RestAPI   
 
+## JSON file format
 
+```
+[
+  {
+    "id": 1,
+    "name": "James Bond",
+    "status": "Active",
+    "skills": [
+      "Espionage",
+      "Driving"
+    ]
+  },
+  {
+    "id": "1769075502701",
+    "Agent": "IgorRM23",
+    "status": "active"
+  },
+  {
+    "Agent": "Jammiller",
+    "status": "active",
+    "id": "1769075691149"
+  }
+]
+```
