@@ -1,8 +1,10 @@
 const express = require("express");
 const Router = require("./routes/agents.router");
+const log = require("./middleware/log.middleware")
 const app = express();
 
 app.use(express.json());
+app.use(log)
 app.use("/", Router);
 
 
