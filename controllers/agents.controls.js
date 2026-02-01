@@ -3,13 +3,20 @@
  */
 
 
-const Models = require("../models/agents.models")
-const fs = require('fs');
+const Models = require("../models/agents.models");
+const Pool = require("../models/dbAgents.models");
+
 
 exports.getAgents = async (req, res) => {  // funcionando
     try {
-        const agents = await Models.getFile();
-        res.status(200).json(agents);
+
+        const agents = await Pool.query("SELECT * FROM agents");
+
+        if (agents.rowCount === 0) {
+            return res.status(200).json([]);
+        }
+
+        res.status(200).json(agents.rows)
 
     } catch (err) {
         console.log(err)
@@ -19,14 +26,14 @@ exports.getAgents = async (req, res) => {  // funcionando
 
 exports.getIdAgents = async (req, res) => {  //funcionando
     try {
-        const agents = await fs.promises.readFile("agents.json", "utf-8");
-        const agent = JSON.parse(agents).find((agent) => String(agent.id) === req.params.id);
 
-        if (!agent) {
+        const agents = await Pool.query("SELECT * FROM agents WHERE id = $1", [req.params.id]);
+
+        if (agents.rowCount === 0) {
             return res.status(404).send({ message: "Agente não encontrado" });
         }
 
-        res.send(agent);
+        res.status(200).json(agents.rows)
 
 
     } catch (err) {
@@ -37,92 +44,66 @@ exports.getIdAgents = async (req, res) => {  //funcionando
 
 exports.createIdAgents = async (req, res) => {
     try {
-        const agent = req.body;
+        const agente = req.body;
 
-        const agents = await fs.promises.readFile("agents.json", "utf-8");
-        const agentsObject = JSON.parse(agents);
-
-        agent.id = Date.now().toString();
-        agentsObject.push(agent);
-
-        fs.writeFileSync(
-            "agents.json",
-            JSON.stringify(agentsObject, null, 2)
+        const result = await Pool.query(
+            `INSERT INTO agents (name, status, skills)
+             VALUES ($1, $2, $3)
+             RETURNING *`,
+            [agente.name, agente.status, agente.skills]
         );
 
-        res.status(201).json(agent);
 
+        res.status(201).send(result.rows);
 
 
     } catch (err) {
         console.log(err)
-        res.status(404).send({ error: "Um erro aconteceu" })
+        res.status(500).send({ error: "Um erro aconteceu" })
     }
 }
 
 exports.updateIdAgents = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { status } = req.body;
+        const agente = req.body;
 
-        if (!status) {
-            return res.status(400).json({ message: "Status é obrigatório" });
-        }
-
-        const agents = await fs.promises.readFile("agents.json", "utf-8");
-        const agentsObject = JSON.parse(agents);
-
-        const index = agentsObject.findIndex(
-            agent => String(agent.id) === id
+        const result = await Pool.query(
+            `UPDATE agents
+             SET name = $1,
+             status = $2,
+             skills = $3
+             WHERE id = $4
+             RETURNING *`,
+            [agente.name, agente.status, agente.skills, req.params.id]
         );
 
-        if (index < 0) {
-            return res.status(404).json({ message: "Agente não encontrado" });
+        if (result.rowCount === 0) {
+            return res.status(404).send({ message: "Agente não atualizado" });
         }
 
-        agentsObject[index].status = status;
-
-        fs.writeFileSync(
-            "agents.json",
-            JSON.stringify(agentsObject, null, 2)
-        );
-
-        res.status(200).json(agentsObject[index]);
+        res.status(200).json(result.rows);
 
 
     } catch (err) {
         console.log(err)
-        res.status(404).send({ error: "Um erro aconteceu" })
+        res.status(500).send({ error: "Um erro aconteceu" })
     }
 }
 
 exports.deleteIdAgents = async (req, res) => {
     try {
-        const { id } = req.params;
+        const result = await Pool.query("DELETE FROM agents WHERE id = $1", [req.params.id]);
 
-        const agents = await fs.promises.readFile("agents.json", "utf-8");
-        const agentsObject = JSON.parse(agents);
-
-        const index = agentsObject.findIndex(
-            agent => String(agent.id) === id
-        );
-
-        if (index < 0) {
-            return res.status(404).json({ message: "Agente não encontrado" });
+        if (result.rowCount === 0) {
+            return res.status(404).send({ message: "Agente não deletado" });
         }
 
-        agentsObject.splice(index, 1);
+        res.status(204).send("Agente deletado com sucesso");
 
-        fs.writeFileSync(
-            "agents.json",
-            JSON.stringify(agentsObject, null, 2)
-        );
-
-        res.status(204).send();
 
     } catch (err) {
         console.log(err)
-        res.status(404).send({ error: "Um erro aconteceu" })
+        res.status(500).send({ error: "Um erro aconteceu" })
     }
 }
 
