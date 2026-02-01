@@ -10,10 +10,10 @@ const Pool = require("../models/dbAgents.models");
 exports.getAgents = async (req, res) => {  // funcionando
     try {
 
-        const agents = await Pool.query("SELECT * FROM books");
+        const agents = await Pool.query("SELECT * FROM agents");
 
         if (agents.rowCount === 0) {
-            return [];
+            return res.status(200).json([]);
         }
 
         res.status(200).json(agents.rows)
@@ -27,7 +27,7 @@ exports.getAgents = async (req, res) => {  // funcionando
 exports.getIdAgents = async (req, res) => {  //funcionando
     try {
 
-        const agents = await Pool.query("SELECT * FROM books WHERE id = $1", [req.params.id]);
+        const agents = await Pool.query("SELECT * FROM agents WHERE id = $1", [req.params.id]);
 
         if (agents.rowCount === 0) {
             return res.status(404).send({ message: "Agente não encontrado" });
@@ -59,7 +59,7 @@ exports.createIdAgents = async (req, res) => {
 
     } catch (err) {
         console.log(err)
-        res.status(404).send({ error: "Um erro aconteceu" })
+        res.status(500).send({ error: "Um erro aconteceu" })
     }
 }
 
@@ -70,11 +70,11 @@ exports.updateIdAgents = async (req, res) => {
         const result = await Pool.query(
             `UPDATE agents
              SET name = $1,
-                 status = $2,
-                 skills = $3
+             status = $2,
+             skills = $3
              WHERE id = $4
              RETURNING *`,
-            [agente.name, agente.status, agente.skills]
+            [agente.name, agente.status, agente.skills, req.params.id]
         );
 
         if (result.rowCount === 0) {
@@ -86,7 +86,7 @@ exports.updateIdAgents = async (req, res) => {
 
     } catch (err) {
         console.log(err)
-        res.status(404).send({ error: "Um erro aconteceu" })
+        res.status(500).send({ error: "Um erro aconteceu" })
     }
 }
 
@@ -103,7 +103,7 @@ exports.deleteIdAgents = async (req, res) => {
 
     } catch (err) {
         console.log(err)
-        res.status(404).send({ error: "Um erro aconteceu" })
+        res.status(500).send({ error: "Um erro aconteceu" })
     }
 }
 
