@@ -3,13 +3,15 @@ const Router = require("./routes/agents.router");
 const log = require("./middleware/log.middleware")
 const app = express();
 
+const PORT = 3000;
+
 app.use(express.json());
 app.use(log)
 app.use("/", Router);
 
 
-app.listen(5000, () => {
-    console.log("Servidor rodando na porta 5000");
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
 
 
