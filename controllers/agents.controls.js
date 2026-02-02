@@ -1,16 +1,9 @@
-/**
- * Tarefa para depois semparar models de controllrs
- */
+const Agency = require("../models/agency.model");
 
-
-const Models = require("../models/agents.models");
-const Pool = require("../models/dbAgents.models");
-
-
-exports.getAgents = async (req, res) => {  // funcionando
+exports.getAgents = async (req, res) => {
     try {
 
-        const agents = await Pool.query("SELECT * FROM agents");
+        const agents = await Agency.getEntries();
 
         if (agents.rowCount === 0) {
             return res.status(200).json([]);
@@ -24,10 +17,10 @@ exports.getAgents = async (req, res) => {  // funcionando
     }
 }
 
-exports.getIdAgents = async (req, res) => {  //funcionando
+exports.getIdAgents = async (req, res) => {
     try {
 
-        const agents = await Pool.query("SELECT * FROM agents WHERE id = $1", [req.params.id]);
+        const agents = await Agency.getEntryById(req.params.id);
 
         if (agents.rowCount === 0) {
             return res.status(404).send({ message: "Agente não encontrado" });
@@ -46,12 +39,7 @@ exports.createIdAgents = async (req, res) => {
     try {
         const agente = req.body;
 
-        const result = await Pool.query(
-            `INSERT INTO agents (name, status, skills)
-             VALUES ($1, $2, $3)
-             RETURNING *`,
-            [agente.name, agente.status, agente.skills]
-        );
+        const result = await Agency.createEntry(agente);
 
 
         res.status(201).send(result.rows);
@@ -67,15 +55,7 @@ exports.updateIdAgents = async (req, res) => {
     try {
         const agente = req.body;
 
-        const result = await Pool.query(
-            `UPDATE agents
-             SET name = $1,
-             status = $2,
-             skills = $3
-             WHERE id = $4
-             RETURNING *`,
-            [agente.name, agente.status, agente.skills, req.params.id]
-        );
+        const result = await Agency.updateEntry(req.params.id, agente);
 
         if (result.rowCount === 0) {
             return res.status(404).send({ message: "Agente não atualizado" });
@@ -92,7 +72,7 @@ exports.updateIdAgents = async (req, res) => {
 
 exports.deleteIdAgents = async (req, res) => {
     try {
-        const result = await Pool.query("DELETE FROM agents WHERE id = $1", [req.params.id]);
+        const result = await Agency.deleteEntry(req.params.id);
 
         if (result.rowCount === 0) {
             return res.status(404).send({ message: "Agente não deletado" });
